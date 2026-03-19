@@ -34,6 +34,24 @@ var init_errors = __esm({
   }
 });
 
+// src/lib/cli.ts
+function getStringOption(args, key) {
+  const value = args.options[key];
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+function getBooleanOption(args, key) {
+  return args.options[key] === true;
+}
+function getPositional(args, index) {
+  const value = args.positionals[index];
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+var init_cli = __esm({
+  "src/lib/cli.ts"() {
+    "use strict";
+  }
+});
+
 // src/lib/config.ts
 import fs from "node:fs";
 import os from "node:os";
@@ -309,10 +327,6 @@ __export(login_exports, {
   default: () => login_default,
   run: () => run
 });
-function getStringOption(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run(args) {
   return loginUser({
     configPath: args.configPath,
@@ -326,6 +340,7 @@ var login_default;
 var init_login = __esm({
   "src/commands/user/login.ts"() {
     "use strict";
+    init_cli();
     init_user();
     login_default = run;
   }
@@ -337,23 +352,20 @@ __export(whoami_exports, {
   default: () => whoami_default,
   run: () => run2
 });
-function getStringOption2(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run2(args) {
   return whoAmI({
     configPath: args.configPath,
-    url: getStringOption2(args, "url"),
-    token: getStringOption2(args, "token"),
-    account: getStringOption2(args, "account"),
-    password: getStringOption2(args, "password")
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password")
   });
 }
 var whoami_default;
 var init_whoami = __esm({
   "src/commands/user/whoami.ts"() {
     "use strict";
+    init_cli();
     init_user();
     whoami_default = run2;
   }
@@ -395,23 +407,20 @@ __export(list_exports, {
   default: () => list_default,
   run: () => run3
 });
-function getStringOption3(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run3(args) {
   return listProducts({
     configPath: args.configPath,
-    url: getStringOption3(args, "url"),
-    token: getStringOption3(args, "token"),
-    account: getStringOption3(args, "account"),
-    password: getStringOption3(args, "password")
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password")
   });
 }
 var list_default;
 var init_list = __esm({
   "src/commands/product/list.ts"() {
     "use strict";
+    init_cli();
     init_product();
     list_default = run3;
   }
@@ -423,12 +432,8 @@ __export(get_exports, {
   default: () => get_default,
   run: () => run4
 });
-function getStringOption4(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 function parseProductId(args) {
-  const rawId = args.positionals[0];
+  const rawId = getPositional(args, 0);
   const productId = Number(rawId);
   if (!Number.isInteger(productId) || productId <= 0) {
     throw new UsageError("product get \u9700\u8981\u4E00\u4E2A\u5927\u4E8E 0 \u7684\u4EA7\u54C1 id\u3002");
@@ -439,16 +444,17 @@ async function run4(args) {
   return getProduct({
     configPath: args.configPath,
     productId: parseProductId(args),
-    url: getStringOption4(args, "url"),
-    token: getStringOption4(args, "token"),
-    account: getStringOption4(args, "account"),
-    password: getStringOption4(args, "password")
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password")
   });
 }
 var get_default;
 var init_get = __esm({
   "src/commands/product/get.ts"() {
     "use strict";
+    init_cli();
     init_errors();
     init_product();
     get_default = run4;
@@ -483,10 +489,6 @@ __export(list_exports2, {
   default: () => list_default2,
   run: () => run5
 });
-function getStringOption5(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 function parseProductId2(args) {
   const rawId = args.options["product-id"];
   const productId = Number(rawId);
@@ -499,16 +501,17 @@ async function run5(args) {
   return listModules({
     configPath: args.configPath,
     productId: parseProductId2(args),
-    url: getStringOption5(args, "url"),
-    token: getStringOption5(args, "token"),
-    account: getStringOption5(args, "account"),
-    password: getStringOption5(args, "password")
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password")
   });
 }
 var list_default2;
 var init_list2 = __esm({
   "src/commands/module/list.ts"() {
     "use strict";
+    init_cli();
     init_errors();
     init_module();
     list_default2 = run5;
@@ -846,32 +849,29 @@ __export(list_exports3, {
   default: () => list_default3,
   run: () => run6
 });
-function getStringOption6(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run6(args) {
-  if (args.options.mine === true && args.options["assigned-to"]) {
+  if (getBooleanOption(args, "mine") && args.options["assigned-to"]) {
     throw new UsageError("--mine \u548C --assigned-to \u4E0D\u80FD\u540C\u65F6\u4F7F\u7528\u3002");
   }
   return listStories({
     config: args.configPath,
-    url: getStringOption6(args, "url"),
-    token: getStringOption6(args, "token"),
-    account: getStringOption6(args, "account"),
-    password: getStringOption6(args, "password"),
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password"),
     productId: parseProductId3(args.options["product-id"]),
     moduleId: parseModuleId(args.options["module-id"]),
-    assignedTo: getStringOption6(args, "assigned-to"),
-    mine: args.options.mine === true,
+    assignedTo: getStringOption(args, "assigned-to"),
+    mine: getBooleanOption(args, "mine"),
     limit: parseLimit(args.options.limit),
-    status: getStringOption6(args, "status")
+    status: getStringOption(args, "status")
   });
 }
 var list_default3;
 var init_list3 = __esm({
   "src/commands/story/list.ts"() {
     "use strict";
+    init_cli();
     init_errors();
     init_story();
     list_default3 = run6;
@@ -884,24 +884,21 @@ __export(get_exports2, {
   default: () => get_default2,
   run: () => run7
 });
-function getStringOption7(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run7(args) {
   return getStory({
     config: args.configPath,
-    url: getStringOption7(args, "url"),
-    token: getStringOption7(args, "token"),
-    account: getStringOption7(args, "account"),
-    password: getStringOption7(args, "password"),
-    storyId: parseStoryId(args.positionals[0])
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password"),
+    storyId: parseStoryId(getPositional(args, 0))
   });
 }
 var get_default2;
 var init_get2 = __esm({
   "src/commands/story/get.ts"() {
     "use strict";
+    init_cli();
     init_story();
     get_default2 = run7;
   }
@@ -913,32 +910,29 @@ __export(assign_exports, {
   default: () => assign_default,
   run: () => run8
 });
-function getStringOption8(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run8(args) {
-  const assignedTo = getStringOption8(args, "to");
+  const assignedTo = getStringOption(args, "to");
   if (!assignedTo) {
     throw new UsageError("\u7F3A\u5C11 --to\u3002");
   }
   return assignStory({
     config: args.configPath,
-    url: getStringOption8(args, "url"),
-    token: getStringOption8(args, "token"),
-    account: getStringOption8(args, "account"),
-    password: getStringOption8(args, "password"),
-    cookie: getStringOption8(args, "cookie"),
-    storyId: parseStoryId(args.positionals[0]),
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password"),
+    cookie: getStringOption(args, "cookie"),
+    storyId: parseStoryId(getPositional(args, 0)),
     assignedTo,
-    comment: getStringOption8(args, "comment"),
-    storyType: getStringOption8(args, "story-type")
+    comment: getStringOption(args, "comment"),
+    storyType: getStringOption(args, "story-type")
   });
 }
 var assign_default;
 var init_assign = __esm({
   "src/commands/story/assign.ts"() {
     "use strict";
+    init_cli();
     init_errors();
     init_story();
     assign_default = run8;
@@ -951,24 +945,20 @@ __export(close_exports, {
   default: () => close_default,
   run: () => run9
 });
-function getStringOption9(args, key) {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 async function run9(args) {
-  const reason = getStringOption9(args, "reason");
+  const reason = getStringOption(args, "reason");
   if (!reason) {
     throw new UsageError("\u7F3A\u5C11 --reason\u3002");
   }
   return closeStory({
     config: args.configPath,
-    url: getStringOption9(args, "url"),
-    token: getStringOption9(args, "token"),
-    account: getStringOption9(args, "account"),
-    password: getStringOption9(args, "password"),
-    storyId: parseStoryId(args.positionals[0]),
+    url: getStringOption(args, "url"),
+    token: getStringOption(args, "token"),
+    account: getStringOption(args, "account"),
+    password: getStringOption(args, "password"),
+    storyId: parseStoryId(getPositional(args, 0)),
     reason,
-    comment: getStringOption9(args, "comment"),
+    comment: getStringOption(args, "comment"),
     duplicateStory: parseDuplicateStoryId(args.options["duplicate-story"])
   });
 }
@@ -976,6 +966,7 @@ var close_default;
 var init_close = __esm({
   "src/commands/story/close.ts"() {
     "use strict";
+    init_cli();
     init_errors();
     init_story();
     close_default = run9;

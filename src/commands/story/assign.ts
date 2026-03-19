@@ -1,11 +1,7 @@
 import type { CliRunArgs } from "../../cli/types.js";
+import { getPositional, getStringOption } from "../../lib/cli.js";
 import { UsageError } from "../../lib/errors.js";
 import { assignStory, parseStoryId } from "../../services/story.js";
-
-function getStringOption(args: CliRunArgs, key: string): string | null {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 
 export async function run(args: CliRunArgs): Promise<unknown> {
   const assignedTo = getStringOption(args, "to");
@@ -20,7 +16,7 @@ export async function run(args: CliRunArgs): Promise<unknown> {
     account: getStringOption(args, "account"),
     password: getStringOption(args, "password"),
     cookie: getStringOption(args, "cookie"),
-    storyId: parseStoryId(args.positionals[0]),
+    storyId: parseStoryId(getPositional(args, 0)),
     assignedTo,
     comment: getStringOption(args, "comment"),
     storyType: getStringOption(args, "story-type"),

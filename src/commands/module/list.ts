@@ -1,11 +1,7 @@
 import type { CliRunArgs } from "../../cli/types.js";
+import { getStringOption } from "../../lib/cli.js";
 import { UsageError } from "../../lib/errors.js";
 import { listModules } from "../../services/module.js";
-
-function getStringOption(args: CliRunArgs, key: string): string | null {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 
 function parseProductId(args: CliRunArgs): number {
   const rawId = args.options["product-id"];

@@ -1,10 +1,6 @@
 import type { CliRunArgs } from "../../cli/types.js";
+import { getPositional, getStringOption } from "../../lib/cli.js";
 import { getStory, parseStoryId } from "../../services/story.js";
-
-function getStringOption(args: CliRunArgs, key: string): string | null {
-  const value = args.options[key];
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 
 export async function run(args: CliRunArgs): Promise<unknown> {
   return getStory({
@@ -13,7 +9,7 @@ export async function run(args: CliRunArgs): Promise<unknown> {
     token: getStringOption(args, "token"),
     account: getStringOption(args, "account"),
     password: getStringOption(args, "password"),
-    storyId: parseStoryId(args.positionals[0]),
+    storyId: parseStoryId(getPositional(args, 0)),
   });
 }
 
